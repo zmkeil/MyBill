@@ -10,14 +10,20 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
 import com.example.mybill.util.DBHelper;
 import com.example.mybill.util.FileHelper;
+import com.example.mybill.network.BillBean.BillRequest.PullInfo;
+import com.example.mybill.network.BillBean.BillResponse.PullRecords;
 import com.example.mybill.network.BillBean.Record;
 import com.example.mybill.network.EchoServiceBeann.EchoRequest;
 import com.example.mybill.network.EchoServiceBeann.EchoResponse;
@@ -59,17 +65,22 @@ public class NetworkService extends Service {
 	private SQLiteDatabase db;
 	
 	private BlockChannel bchannel = null;
+	private Context mcontext;
 	
 	@Override
     public void onCreate() {
         super.onCreate();
+        mcontext = this;
         file_helper = new FileHelper(this);
         db_helper = new DBHelper(this);
         db = db_helper.getReadableDatabase();
         
-    	String ip = PreferenceManager.getDefaultSharedPreferences(this).getString("remote_address", "127.0.0.1");
-    	String port = PreferenceManager.getDefaultSharedPreferences(this).getString("remote_port", "8844");
-        
+    	String remote_address = PreferenceManager.getDefaultSharedPreferences(this).getString("remote_address", "127.0.0.1:8888");
+		Log.i(TAG, "remote address: " + remote_address);
+		String[] addr = remote_address.split(":");
+		String ip = addr[0];
+		String port = addr[1];
+
         ChannelOption option = new ChannelOption(ip, Integer.valueOf(port));               
         bchannel = new BlockChannel(option);
     }
@@ -99,139 +110,125 @@ public class NetworkService extends Service {
 
 		@Override
 		public void run() {
-			Log.i(TAG, "timer task running");
 			
-			/* first running, init the record.txt and index.txt */
-			//file_helper.deleteFile(get_current_record_file());
-			//file_helper.deleteFile(get_current_index_file());
-			//file_helper.deleteFile(get_current_index_update_file());
+			// first running, init the record.txt and index.txt
+			/*file_helper.deleteFile(get_current_record_file());
+			file_helper.deleteFile(get_current_index_push_file());
+			file_helper.deleteFile(get_current_index_pull_file());
+			file_helper.save(get_current_record_size_file(), "3");*/
 			
-			//Log.i(TAG, file_helper.read(get_current_record_file()));
-			//Log.i(TAG, "current_index: " + file_helper.read(get_current_index_file()));
-			//Log.i(TAG, "updated_index: " + file_helper.read(get_current_index_update_file()));
-			//Log.i(TAG, file_helper.read_ex("/data/data/com.example.hello/files/2016_03_bills_records_content.txt"));
+			/*db_helper.drop_bills(db, "bills_of_jxj_2016_04");
+			db_helper.drop_bills(db, "bills_of_zmkeil_2016_04");
+			db_helper.drop_bills(db, "bills_of_zmkeil_2017_08");*/
 			
-			/*file_helper.deleteFile("2016_03_records.txt");
-			file_helper.deleteFile("2016_03_index.txt");
-			file_helper.deleteFile("2016_03_index_update.txt");
-			db_helper.drop_bills(db, "bills_2016_03");
-			file_helper.deleteFile("2016_02_records.txt");
-			file_helper.deleteFile("2016_02_index.txt");
-			file_helper.deleteFile("2016_02_index_update.txt");
-			db_helper.drop_bills(db, "bills_2016_02");
-			file_helper.deleteFile("2016_04_records.txt");
-			file_helper.deleteFile("2016_04_index.txt");
-			file_helper.deleteFile("2016_04_index_update.txt");
-			db_helper.drop_bills(db, "bills_2016_04");
-			copy_bills_from_hello("2016_04_bills_records_content.txt");
-			copy_bills_from_hello("2016_04_earns_records_content.txt");
-			copy_bills_from_hello("2016_03_bills_records_content.txt");
-			copy_bills_from_hello("2016_03_earns_records_content.txt");
-			copy_bills_from_hello("2016_02_bills_records_content.txt");
-			copy_bills_from_hello("2016_02_earns_records_content.txt");*/
-			
-			/* update records to server */
-			//network_test();
-			//file_helper.deleteFile("2016_02_records.txt");
-			//file_helper.deleteFile("2016_03_records.txt");
-			//file_helper.deleteFile("2016_02_index_update.txt");
-			//file_helper.deleteFile("2016_03_index_update.txt");
-			//file_helper.deleteFile(get_current_index_update_file());
-			
-			//db_helper.drop_bills(db, "bills_of_others_2016_02");
-			//db_helper.drop_bills(db, "bills_of_others_2016_03");
-			//db_helper.drop_bills(db, "bills_of_others_2016_04");
-			//file_helper.deleteFile("sync_index.txt");
-			
-			//update_records("2016_02_records.txt", "2016_02_index.txt", "2016_02_index_update.txt");
-			//update_records("2016_03_records.txt", "2016_03_index.txt", "2016_03_index_update.txt");
-			update_records();
+			boolean use_network = PreferenceManager.getDefaultSharedPreferences(mcontext).getBoolean("use_network", false);
+			if (use_network) {
+				Log.i(TAG, "network task running");
+				update_records();
+			} else {
+				Log.i(TAG, "network task not enable");
+			}
 		}			
 	}
 	
-	private void update_records(String record_file, String index_file, String index_update_file) {
-		// init the records file and index file from DB if not exist
-		init_record_and_index_file(record_file, index_file);
-
+	private void update_records(String record_file, String record_size_file,
+			String index_push_file, String index_pull_file) {
+		// record_file: record_gay_year_month
+		// record_size_file: record_gay_size_year_month
+		// index_push_file: index_gay_push_year_month
+		// index_pull_file: index_gay_pull, format:
+		//		gay \t pull_index \t breakpoint_index
+		//		sharer1 \t pull_index
+		//		sharer2 \t pull_index
+		//		sharer3 \t pull_index
+		
 		String[] arr = record_file.split("_");
-		int year = Integer.parseInt(arr[0]);
-		int month = Integer.parseInt(arr[1]);
-		String table_name = "bills_" + arr[0] + "_" + arr[1];
-    	String gay = PreferenceManager.getDefaultSharedPreferences(this).getString("user_name", "noset");
+		String gay = arr[1];
+		int year = Integer.parseInt(arr[2]);
+		int month = Integer.parseInt(arr[3]);
+		String table_name = "bills_of_" + gay + "_" + year_present[year - 2015] 
+				+ "_" + month_present[month - 1];
 
+		// build request
     	BillRequest.Builder request_builder = BillRequest.newBuilder();
 		request_builder.setGay(gay);
 		
-		// for sync other's records
-		int sync_index = 1;
-		String sync_index_line = file_helper.read("sync_index.txt");
-		if (sync_index_line != null) {
-			sync_index = Integer.parseInt(sync_index_line);
-		} else {
-			// begin from 1
-			sync_index = 1;
-		}
-		request_builder.setBeginIndex(sync_index);
-		request_builder.setMaxLine(2);
-		
 		// for upload self's records
-		int record_size = 0;
-    	int updated_index = 0;
-    	int last_index = 0;
-    	String index_line = file_helper.read(index_file);
-    	if (index_line != null) {
-    		record_size = Integer.parseInt(index_line.split("\t")[0]);
-        	String index_update_line = file_helper.read(index_update_file);
-        	if (index_update_line != null) {
-        		updated_index = Integer.parseInt(index_update_line);
-        	} else {
-        		updated_index = 0;
-        	}
-        	last_index = updated_index;
-        	
-        	if (record_size != updated_index) {
-        		last_index = ((updated_index + MAX_RECORD_EACH_TIME) < record_size) ?
-        				(updated_index + MAX_RECORD_EACH_TIME) : record_size;       		
-        		fill_bill_request(request_builder, record_file, table_name, updated_index, last_index, year, month);        		
-        	}        	
+		int[] ri = get_record_size_and_push_index(record_size_file, index_push_file);
+		int record_size = ri[0];
+		int index_push = ri[1];		
+    	int next_index_push = index_push;        	
+        if (record_size != index_push) {
+        	next_index_push = ((index_push + MAX_RECORD_EACH_TIME) < record_size) ?
+        				(index_push + MAX_RECORD_EACH_TIME) : record_size;       		
+        	fill_bill_request(request_builder, record_file, table_name, 
+        			index_push, next_index_push, year, month);        		
     	}
+		Log.i(TAG, "record_size:" + record_size + ", index_push:" + index_push 
+				+ ", next_index_push:" + next_index_push 
+				+ "(" + request_builder.getPushRecordsCount() + ")");
+		for (int i = 0; i < request_builder.getPushRecordsCount(); i++) {
+			Log.i(TAG, "push records: " + request_builder.getPushRecords(i).getId() 
+					+ " " + request_builder.getPushRecords(i).getComments());
+		}
+    	
+		// for sync other's records		
+		Map<String, PullIndexInfo> pull_index_info = get_pull_index(index_pull_file);
+		Iterator<Entry<String, PullIndexInfo>> iter = pull_index_info.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String gay_name = (String) entry.getKey();
+			PullIndexInfo val = (PullIndexInfo) entry.getValue();
+    		int begin_index = val.begin_index;
+    		int breakpoint_index = val.breakpoint_index;
+    		if ((gay_name.equals(gay)) && (breakpoint_index <= 0)) {
+    			// if self's breakpoint <= 0, don't pull self's records.
+    			// wait for last_push_index returned by the first push
+    			Log.i(TAG, gay + " self maybe the first time to push, wait for the last_push_index");
+    		} else {
+	    		Log.i(TAG, "pull " + gay_name + "'s record from begin_index " + begin_index
+	    				+ ", breakpoint_index " + breakpoint_index);
+	    		request_builder.addPullInfos(PullInfo.newBuilder()
+	    				.setGay(gay_name).setBeginIndex(begin_index)
+	    				.setMaxLine(MAX_RECORD_EACH_TIME).build());
+    		}
+		}
     	
     	// rpc call
-    	BillRequest request = request_builder.build();
-		Log.i(TAG, "has begin index: " + request.hasBeginIndex() + ", index: " + request.getBeginIndex());
-		Log.i(TAG, "head_index:" + record_size + ", updated_index:" + updated_index 
-					+ ", last_index:" + last_index + "(" + request.getRecordsCount() + ")");
-		for (int i = 0; i < request.getRecordsCount(); i++) {
-			Log.i(TAG, "request ids:" + request.getRecords(i).getId() + " " + request.getRecords(i).getComments());
-		}
+    	BillRequest request = request_builder.build();	
 		BillResponse response = update_records_rpc_call(request);
 		if (response != null) {
+			int push_last_index = 0;
 			// check upload status
 			if (response.getStatus()) {
 		        Log.i(TAG, "upload record OK");
-		        file_helper.save(index_update_file, "" + last_index);	        
+		        push_last_index = response.getLastIndex();
 	        } else {
 	        	Log.i(TAG, "upload record Failed");
 	        }
 			
 			// check sync records
-			if (response.getRecordsCount() > 0) {
-				sync_others_records(response);
-				sync_index += response.getRecordsCount();
-				file_helper.save("sync_index.txt", sync_index + "");
-				Log.i(TAG, "sync " + response.getRecordsCount() + " records OK, next index: " + sync_index);
-			} else {
-				Log.i(TAG, "no records to sync, next index: " + sync_index);
+			for (int i = 0; i < response.getPullRecordsCount(); i++) {				
+				PullRecords pull_record = response.getPullRecords(i);
+				sync_others_records(pull_record);
+
+				String gay_name = pull_record.getGay();
+				pull_index_info.get(gay_name).pull_success(pull_record.getRecordsCount());
+				Log.i(TAG, "pull " + gay_name + "'s " + pull_record.getRecordsCount() 
+						+ " records OK, next index: " + pull_index_info.get(gay_name).begin_index);
 			}
 			
+			// update index_push/pull_file
+			update_index_files(index_push_file, next_index_push,
+					index_pull_file, pull_index_info, push_last_index);
 		} else {
 			Log.i(TAG, "rpc call failed");
 		}
 	}	
-
+	
 	private void update_records() {
-		update_records(get_current_record_file(), get_current_index_file(),
-				get_current_index_update_file());
+		update_records(get_current_record_file(), get_current_record_size_file(),
+				get_current_index_push_file(), get_current_index_pull_file());
 	}
 
 	private BillResponse update_records_rpc_call(BillRequest request) {
@@ -248,13 +245,15 @@ public class NetworkService extends Service {
 		return response;
 	}
 	
-	private void sync_others_records(BillResponse response) {
-		int size = response.getRecordsCount();
+	private void sync_others_records(PullRecords pull_record) {
+		String gay = pull_record.getGay();
+		int size = pull_record.getRecordsCount();
 		for (int i = 0; i < size; i++) {
-			Record record = response.getRecords(i);
+			Record record = pull_record.getRecords(i);
 			int year = record.getYear();
 			int month = record.getMonth();	        
-	        String db_table_name = "bills_of_others_" + year_present[year - 2015] + "_" + month_present[month - 1];
+	        String db_table_name = "bills_of_" + gay + "_"
+	        		+ year_present[year - 2015] + "_" + month_present[month - 1];
 	        
 	        int day = record.getDay();
 	        int pay_earn = record.getPayEarn();
@@ -267,7 +266,8 @@ public class NetworkService extends Service {
 	        if (record.getType() == Record.Type.NEW) {
 	        	// if exist, ignore it
 	        	if (!db_helper.is_bill_exist(db, db_table_name, sid)) {
-	        		db_helper.insert_new_bill(db, db_table_name, sid, day, pay_earn, consumer, comment, cost, is_deleted);
+	        		db_helper.insert_new_bill(db, db_table_name, sid, day,
+	        				pay_earn, consumer, comment, cost, is_deleted);
 	        	}
 	        } else {
 	        	Map<String,Object> update_data = new HashMap<String,Object>();
@@ -300,6 +300,8 @@ public class NetworkService extends Service {
             	} else if (i > last_index) {
             		break;
             	}
+            	Log.i(TAG, "push_index " + updated_index 
+            			+ ", last_index " + last_index + ", line " + line);
             	String[] brr = line.split("\t");
             	if (update_records.containsKey(brr[2])) {
             		// must be NEW-UPDATE, or UPDATE-UPDATE, so don't need put it again
@@ -317,79 +319,136 @@ public class NetworkService extends Service {
 			e.printStackTrace();
 		}
 	}
-	
-	private void network_test() {
-		Controller cntl = new Controller();
-        EchoRequest request = EchoRequest.newBuilder().setMessage("mybill").build();          
-        EchoService.BlockingInterface bstub = EchoService.newBlockingStub((BlockingRpcChannel)bchannel);
-        EchoResponse response = null;
-        try {
-			response = bstub.echo((RpcController)cntl, request);
-		} catch (ServiceException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
+		
+	private class PullIndexInfo {
+		public int begin_index;
+		public int breakpoint_index;
+		public PullIndexInfo(int begin_index, int breakpoint_index) {
+			this.begin_index = begin_index;
+			this.breakpoint_index = breakpoint_index;
 		}
-        if (response != null) {
-	        Log.i(TAG, response.getMessage());
-        }
+		public void pull_success(int pull_count) {
+			this.begin_index += pull_count;
+		}
 	}
 	
-	private void init_record_and_index_file(String record_file, String index_file) {
-		if (file_helper.fileIsExists(record_file)) {
-			Log.i(TAG, "records file " + record_file + " already exist");
+	private Set<String> get_sharers() {
+		String sharer1 = PreferenceManager.getDefaultSharedPreferences(this.mcontext)
+				.getString("sharer_name1", "").split(":")[0];
+		String sharer2 = PreferenceManager.getDefaultSharedPreferences(this.mcontext)
+				.getString("sharer_name2", "").split(":")[0];
+		String sharer3 = PreferenceManager.getDefaultSharedPreferences(this.mcontext)
+				.getString("sharer_name3", "").split(":")[0];
+		Set<String> shares = new HashSet<String>();
+		if (sharer1 != "") {
+			shares.add(sharer1);
+		}
+		if (sharer2 != "") {
+			shares.add(sharer2);
+		}
+		if (sharer3 != "") {
+			shares.add(sharer3);
+		}
+		return shares;
+	}
+
+	private Map<String, PullIndexInfo> get_pull_index(String index_pull_file) {
+		String gay = index_pull_file.split("_")[2];
+		Set<String> shares = get_sharers();
+				
+		Map<String, PullIndexInfo> pull_info = new HashMap<String, PullIndexInfo>();	
+		Map<String, Integer> old_index = new HashMap<String, Integer>();
+		if (!file_helper.fileIsExists(index_pull_file)) {
+			pull_info.put(gay, new PullIndexInfo(1, 0));
 		} else {
-			// file content: INDEX	ACTION	SID
-			List<Map<String, Object>> all_bills = new ArrayList<Map<String, Object>>();
-			String[] arr = record_file.split("_");
-			int year = Integer.parseInt(arr[0]);
-			int month = Integer.parseInt(arr[1]);
-			String db_table_name = "bills_" + arr[0] + "_" + arr[1];
-			if (db_helper.dump_bills(db, db_table_name, all_bills)) {
-				String records = "";
-				int record_size = all_bills.size();
-				for (int i = 0; i < record_size; ++i) {
-					String sid = all_bills.get(i).get("sid").toString();
-					String record = String.valueOf(i + 1) + "\t" + "0\t"/*NEW*/ + sid + "\n";
-					records += record;
+			String[] lines = file_helper.read(index_pull_file).split("\n");
+			for (String line: lines) {
+				Log.i(TAG, "line: " + line);
+				String[] arr = line.split("\t");
+				if (arr.length != 3) {
+					continue;
 				}
-				file_helper.save(record_file, records);				
-				String start_index = record_size + "\t0";
-				Log.i(TAG, "records: " + start_index);
-				file_helper.save(index_file, start_index);
-			}
+				if (arr[0].equals(gay)) {
+					int pull_index = Integer.parseInt(arr[1]);
+					int breakpoint_index = Integer.parseInt(arr[2]);
+					Log.i(TAG, "gay " + gay + ", pull_index " + pull_index + ", breakpoint_index " + breakpoint_index);
+					if (pull_index < breakpoint_index) {
+						pull_info.put(gay, new PullIndexInfo(pull_index, breakpoint_index));
+					}
+				} else {
+					old_index.put(arr[0], Integer.parseInt(arr[1]));
+				}
+			}			
 		}
-	}	
-	
-	private void copy_bills_from_hello(String file) {
-		String filename = "/data/data/com.example.hello/files/" + file;
-		String[] arr = file.split("_");
-		String table_name = "bills_" + arr[0] + "_" + arr[1];
-		String pe = arr[2];
-		int pay_earn = ((pe.equalsIgnoreCase("bills")) ? 0 : 1);
-		Log.i(TAG, "pay_earn: " + pay_earn + ", arr[2]:" + pe);
-		File f = new File(filename);
-		try {
-			InputStream instream = new FileInputStream(f);
-			InputStreamReader inputreader = new InputStreamReader(instream);
-            BufferedReader buffreader = new BufferedReader(inputreader);
-            String line;
-            while (( line = buffreader.readLine()) != null) {
-            	String[] brr = line.split("\t");
-            	int day = Integer.parseInt(brr[0]);
-            	int cost = Integer.parseInt(brr[3]);
-            	db_helper.insert_new_bill(db, table_name, day, pay_earn, brr[1], brr[2], cost);
-            }
-            instream.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+
+		// for shares
+		for (String sh : shares) {
+			int pull_index = old_index.containsKey(sh) ? old_index.get(sh) : 1;
+			pull_info.put(sh, new PullIndexInfo(pull_index, 0));
+		}
+		return pull_info;
+	}
+
+	private int[] get_record_size_and_push_index(String record_size_file,
+			String index_push_file) {
+		// record size
+		int record_size = 0;
+		if (file_helper.fileIsExists(record_size_file)) {
+			String record_size_line = file_helper.read(record_size_file);
+	    	if (record_size_line != null && record_size_line != "") {
+	    		record_size = Integer.parseInt(record_size_line);
+	    	}
+		}
+		
+		// index push
+    	int index_push = 0;
+    	if (file_helper.fileIsExists(index_push_file)) {
+	    	String index_push_line = file_helper.read(index_push_file);
+	    	if (index_push_line != null && index_push_line != "") {
+	    		index_push = Integer.parseInt(index_push_line);
+	    	}
+    	}
+		return new int[]{record_size, index_push};
 	}
 	
+	private void update_index_files(String index_push_file,
+			int next_index_push, String index_pull_file,
+			Map<String, PullIndexInfo> pull_index_info, int push_last_index) {
+		String gay = index_push_file.split("_")[2];
+		// push_index
+        file_helper.save(index_push_file, "" + next_index_push);
+        
+        // pull_index
+        String pull_index_str = "";
+        // self's
+        if (pull_index_info.containsKey(gay)) {
+        	PullIndexInfo val = pull_index_info.get(gay);
+        	int begin_index = val.begin_index;
+			int breakpoint_index = val.breakpoint_index;
+			Log.i(TAG, gay + "'s last push index: " + push_last_index
+					+ ", breakpoint_index: " + breakpoint_index);
+			if (breakpoint_index == 0) {
+				breakpoint_index = push_last_index;
+				Log.i(TAG, "set self's breakpoint_index: " + breakpoint_index);
+			}
+			pull_index_str = pull_index_str + gay + "\t" 
+					+ begin_index + "\t" + breakpoint_index + "\n";
+        }
+        // sharers'
+        Set<String> sharers = get_sharers();
+        for (String sh : sharers) {
+			int begin_index = 0;
+			int breakpoint_index = 0;
+			if (pull_index_info.containsKey(sh)) {
+				begin_index = pull_index_info.get(sh).begin_index;
+				breakpoint_index = pull_index_info.get(sh).breakpoint_index;
+			}
+			pull_index_str = pull_index_str + sh + "\t" 
+					+ begin_index + "\t" + breakpoint_index + "\n";
+		}
+		file_helper.save(index_pull_file, pull_index_str);
+	}
+
 	static private String get_data_present() {
 		Calendar c = Calendar.getInstance();
         int year_position = c.get(Calendar.YEAR) - 2015;
@@ -398,16 +457,28 @@ public class NetworkService extends Service {
         return year_present[year_position] + "_" + month_present[month_position];
 	}
 	
-	static public String get_current_record_file() {
-		return get_data_present() + "_records.txt";
+	private String get_current_record_file() {
+		String user_s = PreferenceManager.getDefaultSharedPreferences(this.mcontext).getString("user_name", "noset");
+		String gay = user_s.split(":")[0];
+		return "record_" + gay + "_" + get_data_present();
 	}
 	
-	static public String get_current_index_file() {
-		return get_data_present() + "_index.txt";
+	private String get_current_record_size_file() {
+		String user_s = PreferenceManager.getDefaultSharedPreferences(this.mcontext).getString("user_name", "noset");
+		String gay = user_s.split(":")[0];
+		return "record_size_" + gay + "_" + get_data_present();
 	}
 	
-	static public String get_current_index_update_file() {
-		return get_data_present() + "_index_update.txt";
+	private String get_current_index_push_file() {
+		String user_s = PreferenceManager.getDefaultSharedPreferences(this.mcontext).getString("user_name", "noset");
+		String gay = user_s.split(":")[0];
+		return "index_push_" + gay + "_" + get_data_present();
+	}
+	
+	private String get_current_index_pull_file() {
+		String user_s = PreferenceManager.getDefaultSharedPreferences(this.mcontext).getString("user_name", "noset");
+		String gay = user_s.split(":")[0];
+		return "index_pull_" + gay;
 	}
 	
 	public class UpdateRecord {

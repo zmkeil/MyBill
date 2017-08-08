@@ -28,6 +28,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
+import android.preference.PreferenceManager;
 
 public class BillDetailFragment extends Fragment {
 	
@@ -123,6 +124,7 @@ public class BillDetailFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 		Log.i("BWORD", "onResume");
+		date_view.setDayToBillType();
 		historyBillQuery(true, "resume");
 	}
 	
@@ -182,7 +184,9 @@ public class BillDetailFragment extends Fragment {
     	intent.putExtra(EXTRA_UPDATE_DAY, day_position);
     	
     	//int type = date_view.get_day_p();
-    	String table_prefix = "bills_";
+    	String gay = PreferenceManager.getDefaultSharedPreferences(this.mcontext)
+    			.getString("user_name", "noset").split(":")[0];
+    	String table_prefix = "bills_of_" + gay + '_';
     	String table_name = table_prefix + date_view.get_year_s()
     			+ "_" + date_view.get_month_s();
     	intent.putExtra(EXTRA_UPDATE_TABLE_NAME, table_name);
@@ -190,26 +194,12 @@ public class BillDetailFragment extends Fragment {
     }
 	
 	private boolean getData() {
+		int gay_p = date_view.get_day_p();
+		String gay_name = date_view.get_gay_s();
+		String table_prefix = "bills_of_" + gay_name + '_';
 		String role = "消费者";
-		String table_prefix = "bills_";
-		int type = date_view.get_day_p();
-		switch(type) {
-		case 0:
-			role = "消费者";
-			break;
-		case 1:
+		if (gay_p % 2 == 1) {
 			role = "收入者";
-			break;
-		case 2:
-			role = "消费者";
-			table_prefix = "bills_of_others_";
-			break;
-		case 3:
-			role = "收入者";
-			table_prefix = "bills_of_others_";
-			break;
-		default:
-			break;
 		}
 		
     	billlist_data.clear();
@@ -223,7 +213,7 @@ public class BillDetailFragment extends Fragment {
     	String bill_table_name = table_prefix + date_view.get_year_s() +
     			"_" + date_view.get_month_s();
     	Log.i(BWORD, "table name " + bill_table_name);
-    	return db_helper.query_bills(db, bill_table_name, type % 2, billlist_data);
+    	return db_helper.query_bills(db, bill_table_name, gay_p % 2, billlist_data);
     }
 
 	public void select_year(int year_position) {

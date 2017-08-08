@@ -179,8 +179,10 @@ public class DBHelper extends SQLiteOpenHelper{
 	            String strid;
 	            if(cursor.moveToFirst()) {
 	            	id = cursor.getInt(0);
-	            	String user_name = PreferenceManager.getDefaultSharedPreferences(mcontext).getString("user_name", "noset");
-	            	strid = user_name + "_" + table_name + "_" + id;
+	            	String[] arr = table_name.split("_");
+	            	String user_name = arr[2];
+	            	String year_month = arr[3] + "_" + arr[4];
+	            	strid = user_name + "_" + year_month + "_" + id;
 	            	Map<String,Object> update_strid = new HashMap<String,Object>();
 	            	update_strid.put("sid", strid);
 	            	if (!update_bill(db, table_name, id, null, update_strid)) {
@@ -279,32 +281,26 @@ public class DBHelper extends SQLiteOpenHelper{
 		return true;
 	}
 	
-	private String get_data_prefix(String table_name) {
+	private String get_data_prefix(String table_name/*bills_of_gay_year_month*/) {
 		String[] arr = table_name.split("_");
-		return arr[1] + "_" + arr[2];
+		return arr[2] + "_" + arr[3] + "_" + arr[4];
 	}
 	
 	private void add_record(String sid, String data_prefix, boolean new_update) {
-		String index_file = data_prefix + "_index.txt";
-    	String index_line = file_helper.read(index_file);
-    	int record_size;
-    	// 这里的current_index弃用，放在xxxx_xx_index_update.txt中，以使本地操作和网络更新 不会使用
-    	// 相同的文件，避免使用mutex
-    	String current_index;
-    	if (index_line != null) {
-    		String[] indexarr = index_line.split("\t");    	
-    		record_size = Integer.parseInt(indexarr[0]);
-    		current_index = indexarr[1];
-    	} else {
-    		record_size = 0;
-    		current_index = "0";
-    	}
-    	
+		// record size
+		String record_size_file = "record_size_" + data_prefix;
+    	int record_size = 0;
+		if (file_helper.fileIsExists(record_size_file)) {
+			String record_size_line = file_helper.read(record_size_file);
+			if (record_size_line != null) {
+				record_size = Integer.parseInt(record_size_line);
+			}
+		}
     	record_size++;
-    	String new_index_line = record_size + "\t" + current_index;
-    	file_helper.save(index_file, new_index_line);
+    	file_helper.save(record_size_file, record_size + "");
     	
-    	String record_file = data_prefix + "_records.txt";
+    	// record
+    	String record_file = "record_" + data_prefix;
     	String new_record_line = record_size + (new_update ? "\t0\t" : "\t1\t") + sid + "\n";
     	file_helper.append(record_file, new_record_line);
 	}
@@ -324,9 +320,9 @@ public class DBHelper extends SQLiteOpenHelper{
 				ids += "'";
 				ids += ((i != id_size) ? "," : ")");
 			}
-			Log.i(BWORD, ids);
 			
 			String sql = "SELECT * FROM " + table_name + " where sid in " + ids;
+			Log.i(BWORD, sql);
 			Cursor c = db.rawQuery(sql, null);
 			while (c.moveToNext()) {
 				int is_delete = c.getInt(c.getColumnIndex("is_deleted"));
@@ -339,7 +335,7 @@ public class DBHelper extends SQLiteOpenHelper{
 	    		Record.Type type = (Integer.parseInt(update_records.get(sid).toString()) == 0) ?
 	    				Record.Type.NEW : Record.Type.UPDATE;
 	    		Log.i("QUERY", sid + " " + type.name() + " " + day + " " + consumer + " " + comment + " " + cost);
-	    		request_builder.addRecords(Record.newBuilder().setType(type).setId(sid)
+	    		request_builder.addPushRecords(Record.newBuilder().setType(type).setId(sid)
         				.setYear(year).setMonth(month).setDay(day).setPayEarn(pay_earn)
         				.setGay(consumer).setComments(comment).setCost(cost)
         				.setIsDeleted(is_delete).build());

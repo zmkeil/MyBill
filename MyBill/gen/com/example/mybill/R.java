@@ -37,7 +37,7 @@ public final class R {
         public static final int search=0x7f02000c;
     }
     public static final class id {
-        public static final int action_settings=0x7f09002e;
+        public static final int action_settings=0x7f09003a;
         public static final int billComment=0x7f09000b;
         public static final int billComment_up=0x7f090013;
         public static final int billConsumer=0x7f090008;
@@ -51,9 +51,15 @@ public final class R {
         public static final int buttonDisableBillCreate=0x7f090016;
         public static final int buttonNewBillCreate=0x7f09000f;
         public static final int buttonUpdateBillCreate=0x7f090015;
-        public static final int container=0x7f090029;
+        public static final int container=0x7f090035;
         public static final int date_linearlayout_history=0x7f090001;
-        public static final int frame=0x7f090028;
+        public static final int editText1=0x7f090022;
+        public static final int editText2=0x7f090024;
+        public static final int editText3=0x7f090026;
+        public static final int editText4=0x7f090028;
+        public static final int editText5=0x7f09002a;
+        public static final int editText6=0x7f09002c;
+        public static final int frame=0x7f090034;
         public static final int id_bill_detail_dateview=0x7f090018;
         public static final int id_bill_detail_listview=0x7f090019;
         public static final int id_bill_detail_title=0x7f090017;
@@ -63,30 +69,36 @@ public final class R {
         public static final int id_bill_record_title=0x7f090004;
         public static final int id_bill_update_dateview=0x7f090011;
         public static final int id_bill_update_title=0x7f090010;
-        public static final int id_day_spinner=0x7f090025;
-        public static final int id_day_text=0x7f090026;
+        public static final int id_day_spinner=0x7f090031;
+        public static final int id_day_text=0x7f090032;
         public static final int id_main_tabview=0x7f090003;
-        public static final int id_month_spinner=0x7f090023;
-        public static final int id_month_text=0x7f090024;
-        public static final int id_tab_bottom_bar=0x7f09002c;
-        public static final int id_tab_content=0x7f09002d;
-        public static final int id_year_spinner=0x7f090021;
-        public static final int id_year_text=0x7f090022;
-        public static final int image=0x7f09002a;
+        public static final int id_month_spinner=0x7f09002f;
+        public static final int id_month_text=0x7f090030;
+        public static final int id_tab_bottom_bar=0x7f090038;
+        public static final int id_tab_content=0x7f090039;
+        public static final int id_year_spinner=0x7f09002d;
+        public static final int id_year_text=0x7f09002e;
+        public static final int image=0x7f090036;
         public static final int linearLayout3=0x7f090006;
         public static final int linearLayout4=0x7f090009;
         public static final int linearLayout5=0x7f09000c;
         public static final int listViewHistoryBills=0x7f090002;
-        public static final int menu_drop=0x7f090031;
-        public static final int menu_login=0x7f090030;
-        public static final int menu_search=0x7f09002f;
-        public static final int msg=0x7f090027;
+        public static final int menu_drop=0x7f09003d;
+        public static final int menu_login=0x7f09003c;
+        public static final int menu_search=0x7f09003b;
+        public static final int msg=0x7f090033;
         public static final int textBillComment=0x7f09000a;
         public static final int textBillCost=0x7f09000d;
         public static final int textConsumer=0x7f090007;
         public static final int textHistoryTitle=0x7f090000;
+        public static final int textView1=0x7f090021;
+        public static final int textView2=0x7f090023;
+        public static final int textView3=0x7f090025;
+        public static final int textView4=0x7f090027;
+        public static final int textView5=0x7f090029;
+        public static final int textView6=0x7f09002b;
         public static final int textWelcome=0x7f09001a;
-        public static final int title=0x7f09002b;
+        public static final int title=0x7f090037;
     }
     public static final class layout {
         public static final int activity_history=0x7f030000;
@@ -96,10 +108,13 @@ public final class R {
         public static final int bill_detail_fragment=0x7f030004;
         public static final int bill_record_fragment=0x7f030005;
         public static final int billlist_item=0x7f030006;
-        public static final int date_spinner_view=0x7f030007;
-        public static final int fragment_content=0x7f030008;
-        public static final int tab_item=0x7f030009;
-        public static final int tab_view=0x7f03000a;
+        public static final int config_dialog_server=0x7f030007;
+        public static final int config_dialog_sharer=0x7f030008;
+        public static final int config_dialog_user=0x7f030009;
+        public static final int date_spinner_view=0x7f03000a;
+        public static final int fragment_content=0x7f03000b;
+        public static final int tab_item=0x7f03000c;
+        public static final int tab_view=0x7f03000d;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -113,6 +128,10 @@ public final class R {
         public static final int bill_cost=0x7f06000f;
         public static final int bill_record_earn=0x7f060007;
         public static final int bill_record_pay=0x7f060006;
+        public static final int config_dialog_server_ip=0x7f06001d;
+        public static final int config_dialog_server_port=0x7f06001e;
+        public static final int config_dialog_user=0x7f06001f;
+        public static final int config_dialog_user_display=0x7f060020;
         public static final int day=0x7f06000a;
         public static final int default_bill_comment=0x7f060011;
         public static final int default_bill_submiter=0x7f060010;

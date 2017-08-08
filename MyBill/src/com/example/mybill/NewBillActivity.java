@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -110,8 +111,10 @@ public class NewBillActivity extends Activity {
     	String consumer_s = bill_consumer_EditText.getText().toString();
     	String comment_s = bill_comment_EditText.getText().toString();
     	String cost_s = bill_cost_EditText.getText().toString();
-    	String bill_table_name = "bills_" + date_spinner.get_year_s() +
-    			"_" + date_spinner.get_month_s();
+    	String gay = PreferenceManager.getDefaultSharedPreferences(this)
+    			.getString("user_name", "noset").split(":")[0];
+    	String bill_table_name = "bills_of_" + gay + "_" 
+    			+ date_spinner.get_year_s() + "_" + date_spinner.get_month_s();
         if (!db_helper.insert_new_bill(db, bill_table_name/*date_spinner.get_current_relative_table()*/,
         		date_spinner.get_day(), is_pay ? 0 : 1, consumer_s, comment_s, Integer.valueOf(cost_s))) {
         	VariousDialog.new_alert_dialog(this, "系统提示", "创建单子失败\n请稍后重试或联系管理员",

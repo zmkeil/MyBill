@@ -1,17 +1,26 @@
 package com.example.mybill.widget;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import com.example.mybill.util.PopularCallback;
 import com.example.mybill.R;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 public class DateSpinnerView extends LinearLayout {
@@ -27,23 +36,125 @@ public class DateSpinnerView extends LinearLayout {
 	
 	private int year_position = 100;
 	private int month_position = 100;
-	private int day_position;
-	final private String[] year_present = new String[]{"2015", "2016", "2017", "2018"};
-	final private String[] month_present = new String[]{"01", "02", "03", "04",
-			"05","06","07","08","09","10","11","12"};
-	final private String[] day_present = new String[]{"01", "02", "03", "04",
-			"05","06","07","08","09","10","11","12","13","14","15","16","17","18","19",
-			"20","21","22","23","24","25","26","27","28","29","30","31"};
-	final private String[] day_present_for_detail = new String[]{"支出", "收入", "他人支出", "他人收入"};
-	private ArrayAdapter<String> year_spinner_adapter;
-	private ArrayAdapter<String> month_spinner_adapter;
-	private ArrayAdapter<String> day_spinner_adapter;
+	private int day_position = 0;
+	
+	private class AdaptorContent {
+		public String display_text;
+		public String ext_text;
+		AdaptorContent(String disp, String ext) {
+			this.display_text = disp;
+			this.ext_text = ext;
+		}
+	}
+	
+	private class MyAdapter extends BaseAdapter implements SpinnerAdapter{
+		private Context context ;
+		private List<AdaptorContent> list;
+		
+		public MyAdapter(Context context, List<AdaptorContent> list) {
+			this.context = context;
+			this.list = list;
+		}
+		
+		@Override
+		public int getCount() {
+			return list.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return list.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view = LayoutInflater.from(context).inflate(android.R.layout.simple_spinner_item, null); 
+			TextView tvgetView = (TextView) view.findViewById(android.R.id.text1);
+			tvgetView.setText(((AdaptorContent)getItem(position)).display_text); 
+			return view;
+		}
+		
+		@Override  
+	    public View getDropDownView(int position, View convertView, ViewGroup parent) {  
+	        View view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_activated_1, null);  
+	        TextView tvdropdowview=(TextView) view.findViewById(android.R.id.text1);  
+	        tvdropdowview.setText(((AdaptorContent)getItem(position)).display_text);  
+	        return view;  
+	    }
+	}	
+	
+	private MyAdapter year_spinner_adapter;
+	private MyAdapter month_spinner_adapter;
+	private MyAdapter day_spinner_adapter;
+	private MyAdapter gay_spinner_adapter;
 		
 	private Context mcontext;
 	
 	public DateSpinnerView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.mcontext = context;
+		
+		List<AdaptorContent> year_content_list = new ArrayList<AdaptorContent>();
+		year_content_list.add(new AdaptorContent("2015", ""));
+		year_content_list.add(new AdaptorContent("2016", ""));
+		year_content_list.add(new AdaptorContent("2017", ""));
+		year_content_list.add(new AdaptorContent("2018", ""));
+		year_spinner_adapter = new MyAdapter(context, year_content_list);
+
+		List<AdaptorContent> month_content_list = new ArrayList<AdaptorContent>();
+		month_content_list.add(new AdaptorContent("01", ""));
+		month_content_list.add(new AdaptorContent("02", ""));
+		month_content_list.add(new AdaptorContent("03", ""));
+		month_content_list.add(new AdaptorContent("04", ""));
+		month_content_list.add(new AdaptorContent("05", ""));
+		month_content_list.add(new AdaptorContent("06", ""));
+		month_content_list.add(new AdaptorContent("07", ""));
+		month_content_list.add(new AdaptorContent("08", ""));
+		month_content_list.add(new AdaptorContent("09", ""));
+		month_content_list.add(new AdaptorContent("10", ""));
+		month_content_list.add(new AdaptorContent("11", ""));
+		month_content_list.add(new AdaptorContent("12", ""));
+		month_spinner_adapter = new MyAdapter(context, month_content_list);
+		
+		List<AdaptorContent> day_content_list = new ArrayList<AdaptorContent>();
+		day_content_list.add(new AdaptorContent("01", ""));
+		day_content_list.add(new AdaptorContent("02", ""));
+		day_content_list.add(new AdaptorContent("03", ""));
+		day_content_list.add(new AdaptorContent("04", ""));
+		day_content_list.add(new AdaptorContent("05", ""));
+		day_content_list.add(new AdaptorContent("06", ""));
+		day_content_list.add(new AdaptorContent("07", ""));
+		day_content_list.add(new AdaptorContent("08", ""));
+		day_content_list.add(new AdaptorContent("09", ""));
+		day_content_list.add(new AdaptorContent("10", ""));
+		day_content_list.add(new AdaptorContent("11", ""));
+		day_content_list.add(new AdaptorContent("12", ""));
+		day_content_list.add(new AdaptorContent("13", ""));
+		day_content_list.add(new AdaptorContent("14", ""));
+		day_content_list.add(new AdaptorContent("15", ""));
+		day_content_list.add(new AdaptorContent("16", ""));
+		day_content_list.add(new AdaptorContent("17", ""));
+		day_content_list.add(new AdaptorContent("18", ""));
+		day_content_list.add(new AdaptorContent("19", ""));
+		day_content_list.add(new AdaptorContent("20", ""));
+		day_content_list.add(new AdaptorContent("21", ""));
+		day_content_list.add(new AdaptorContent("22", ""));
+		day_content_list.add(new AdaptorContent("23", ""));
+		day_content_list.add(new AdaptorContent("24", ""));
+		day_content_list.add(new AdaptorContent("25", ""));
+		day_content_list.add(new AdaptorContent("26", ""));
+		day_content_list.add(new AdaptorContent("27", ""));
+		day_content_list.add(new AdaptorContent("28", ""));
+		day_content_list.add(new AdaptorContent("29", ""));
+		day_content_list.add(new AdaptorContent("30", ""));
+		day_content_list.add(new AdaptorContent("31", ""));
+		day_spinner_adapter = new MyAdapter(context, day_content_list);
+		
 		
 		LayoutInflater inflater = LayoutInflater.from(context);
 		//LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -62,19 +173,9 @@ public class DateSpinnerView extends LinearLayout {
 		 month_p = (Spinner)findViewById(R.id.id_month_spinner);
 		 day_p = (Spinner)findViewById(R.id.id_day_spinner);
 		 
-		year_spinner_adapter = new ArrayAdapter<String>(context,
-	        		android.R.layout.simple_spinner_item, year_present);
-        year_spinner_adapter.setDropDownViewResource(android.R.layout.simple_list_item_activated_1);
         year_p.setAdapter(year_spinner_adapter);
-        month_spinner_adapter = new ArrayAdapter<String>(context,
-        		android.R.layout.simple_spinner_item, month_present);
-        month_spinner_adapter.setDropDownViewResource(android.R.layout.simple_list_item_activated_1);
         month_p.setAdapter(month_spinner_adapter);
-        day_spinner_adapter = new ArrayAdapter<String>(context,
-	     		android.R.layout.simple_spinner_item, day_present);
-	    day_spinner_adapter.setDropDownViewResource(android.R.layout.simple_list_item_activated_1);
-	    day_p.setAdapter(day_spinner_adapter);
-	    
+	    day_p.setAdapter(day_spinner_adapter);	    
 	}
 	
 	public void setIntialParams(boolean[] visible, int[] positions, boolean[] selectable,
@@ -139,41 +240,57 @@ public class DateSpinnerView extends LinearLayout {
 		//addView(year_t, param1);		
 	}
 	
-	public void setDayToBillType(boolean is_pay) {
+	public void setDayToBillType() {
+		int bill_num = 0;
 		AdapterView.OnItemSelectedListener listener = day_p.getOnItemSelectedListener();
 		day_p.setOnItemSelectedListener(null);
 		
-		day_spinner_adapter = new ArrayAdapter<String>(mcontext,
-	     		android.R.layout.simple_spinner_item, day_present_for_detail);
-	    day_spinner_adapter.setDropDownViewResource(android.R.layout.simple_list_item_activated_1);
-	    day_p.setAdapter(day_spinner_adapter);
-	    day_position = is_pay ? 0 : 1;
+		List<AdaptorContent> gay_content_list = new ArrayList<AdaptorContent>();
+    	String user_s = PreferenceManager.getDefaultSharedPreferences(this.mcontext).getString("user_name", "jxj:金");
+    	String[] user_sa = user_s.split(":");
+    	if (user_sa.length == 2) {
+    		gay_content_list.add(new AdaptorContent(user_sa[1] + "支出", user_sa[0]));
+    		gay_content_list.add(new AdaptorContent(user_sa[1] + "收入", user_sa[0]));
+    		bill_num += 2;
+    	}		
+		for (int i = 1; i < 4; i++) {
+			String sharer_s = PreferenceManager.getDefaultSharedPreferences(this.mcontext).getString("sharer_name" + i, "");
+			String[] sharer_sa = sharer_s.split(":");
+			if (sharer_sa.length == 2) {
+				gay_content_list.add(new AdaptorContent(sharer_sa[1] + "支出", sharer_sa[0]));
+				gay_content_list.add(new AdaptorContent(sharer_sa[1] + "收入", sharer_sa[0]));
+				bill_num += 2;
+			}
+		}
+		gay_spinner_adapter = new MyAdapter(mcontext, gay_content_list);		
+	    day_p.setAdapter(gay_spinner_adapter);
+	    
+	    day_position = (day_position > (bill_num - 1)) ? (bill_num - 1) : day_position;
 	    day_p.setSelection(day_position, true);
 	    
-	    day_t.setText("");
-	    
+	    day_t.setText("");	    
 	    day_p.setVisibility(View.VISIBLE);
 	    day_t.setVisibility(View.VISIBLE);
 	    day_p.setOnItemSelectedListener(listener);
 	}	
-
-	public void setDayToBillType() {
-		setDayToBillType(true);
-	}
 	
 	public String get_year_s() {
-		return year_spinner_adapter.getItem(year_position);
+		return ((AdaptorContent)year_spinner_adapter.getItem(year_position)).display_text;
 	}
 	public String get_month_s() {
-		return month_spinner_adapter.getItem(month_position);
+		return ((AdaptorContent)month_spinner_adapter.getItem(month_position)).display_text;
 	}
 	public String get_day_s() {
-		return day_spinner_adapter.getItem(day_position);
+		return ((AdaptorContent)day_spinner_adapter.getItem(day_position)).display_text;
 	}
 	
 	public int get_day() {
 		return Integer.valueOf(get_day_s());
 	}	
+	
+	public String get_gay_s() {
+		return ((AdaptorContent)gay_spinner_adapter.getItem(day_position)).ext_text;
+	}
 
 	public int get_year_p() {
 		return year_position;
@@ -186,7 +303,6 @@ public class DateSpinnerView extends LinearLayout {
 	public int get_day_p() {
 		return day_position;
 	}
-
 
 	public void select_year(int year_position) {
 		this.year_position = year_position;

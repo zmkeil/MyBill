@@ -34,5 +34,10 @@
     <string name="settings">设置</string>
     
     <string name="tabItemImgDesc">tabItemImgDesc</string>
-
+    
+    <string name="config_dialog_server_ip">IP</string>
+    <string name="config_dialog_server_port">Port</string>
+    <string name="config_dialog_user">账号</string>
+    <string name="config_dialog_user_display">显示名称</string>
+    
 </resources>
