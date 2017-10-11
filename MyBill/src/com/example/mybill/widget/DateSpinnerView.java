@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.example.mybill.util.AdaptorContent;
+import com.example.mybill.util.AssetsUtil;
+import com.example.mybill.util.MyAdapter;
 import com.example.mybill.util.PopularCallback;
 import com.example.mybill.R;
 
@@ -38,60 +41,14 @@ public class DateSpinnerView extends LinearLayout {
 	private int month_position = 100;
 	private int day_position = 0;
 	
-	private class AdaptorContent {
-		public String display_text;
-		public String ext_text;
-		AdaptorContent(String disp, String ext) {
-			this.display_text = disp;
-			this.ext_text = ext;
-		}
-	}
+
 	
-	private class MyAdapter extends BaseAdapter implements SpinnerAdapter{
-		private Context context ;
-		private List<AdaptorContent> list;
-		
-		public MyAdapter(Context context, List<AdaptorContent> list) {
-			this.context = context;
-			this.list = list;
-		}
-		
-		@Override
-		public int getCount() {
-			return list.size();
-		}
 
-		@Override
-		public Object getItem(int position) {
-			return list.get(position);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = LayoutInflater.from(context).inflate(android.R.layout.simple_spinner_item, null); 
-			TextView tvgetView = (TextView) view.findViewById(android.R.id.text1);
-			tvgetView.setText(((AdaptorContent)getItem(position)).display_text); 
-			return view;
-		}
-		
-		@Override  
-	    public View getDropDownView(int position, View convertView, ViewGroup parent) {  
-	        View view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_activated_1, null);  
-	        TextView tvdropdowview=(TextView) view.findViewById(android.R.id.text1);  
-	        tvdropdowview.setText(((AdaptorContent)getItem(position)).display_text);  
-	        return view;  
-	    }
-	}	
-	
 	private MyAdapter year_spinner_adapter;
 	private MyAdapter month_spinner_adapter;
 	private MyAdapter day_spinner_adapter;
 	private MyAdapter gay_spinner_adapter;
+	private MyAdapter assets_spinner_adapter;
 		
 	private Context mcontext;
 	
@@ -282,14 +239,22 @@ public class DateSpinnerView extends LinearLayout {
 	}
 	public String get_day_s() {
 		return ((AdaptorContent)day_spinner_adapter.getItem(day_position)).display_text;
-	}
-	
-	public int get_day() {
-		return Integer.valueOf(get_day_s());
 	}	
 	
 	public String get_gay_s() {
 		return ((AdaptorContent)gay_spinner_adapter.getItem(day_position)).ext_text;
+	}
+		
+	public int get_day() {
+		return Integer.valueOf(get_day_s());
+	}
+	
+	public int get_month() {
+		return Integer.valueOf(get_month_s());
+	}
+	
+	public int get_year() {
+		return Integer.valueOf(get_year_s());
 	}
 
 	public int get_year_p() {
@@ -317,6 +282,28 @@ public class DateSpinnerView extends LinearLayout {
 	public void select_day(int day_position) {
 		this.day_position = day_position;
 		day_p.setSelection(day_position, true);
+	}
+
+	
+	public void setDayToAssetsType() {
+		int bill_num = AssetsUtil.getInstance().assets_item_withall_list.size();
+		AdapterView.OnItemSelectedListener listener = day_p.getOnItemSelectedListener();
+		day_p.setOnItemSelectedListener(null);
+		
+		assets_spinner_adapter = new MyAdapter(mcontext, AssetsUtil.getInstance().assets_item_withall_list);		
+	    day_p.setAdapter(assets_spinner_adapter);
+	    
+	    day_position = (day_position > (bill_num - 1)) ? (bill_num - 1) : day_position;
+	    day_p.setSelection(day_position, true);
+	    
+	    day_t.setText("");	    
+	    day_p.setVisibility(View.VISIBLE);
+	    day_t.setVisibility(View.VISIBLE);
+	    day_p.setOnItemSelectedListener(listener);
+	}
+	
+	public String get_assets_s() {
+		return ((AdaptorContent)assets_spinner_adapter.getItem(day_position)).ext_text;
 	}
 
 }

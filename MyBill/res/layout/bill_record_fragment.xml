@@ -35,6 +35,15 @@
         android:layout_marginTop="42dp"
         android:text="@string/bill_record_earn" />
     
+    <Button
+        android:id="@+id/id_assets_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/id_bill_record_earn"
+        android:layout_below="@id/id_bill_record_earn"
+        android:layout_marginTop="42dp"
+        android:text="@string/assets_record" />
+    
     
 
 </RelativeLayout>

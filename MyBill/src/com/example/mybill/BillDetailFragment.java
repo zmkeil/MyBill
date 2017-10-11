@@ -217,7 +217,7 @@ public class BillDetailFragment extends Fragment {
     }
 
 	public void select_year(int year_position) {
-		date_view.select_year(year_position);		
+		date_view.select_year(year_position);
 	}
 
 	public void select_month(int month_position) {

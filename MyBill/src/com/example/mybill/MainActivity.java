@@ -27,6 +27,8 @@ public class MainActivity extends Activity {
 	private TabView tab;
 	private BillRecordFragment record_fg;
 	private BillDetailFragment detail_fg;
+	private EvaluateFragment evaluate_fg;
+	private AssetFragment assets_fg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +48,13 @@ public class MainActivity extends Activity {
         
         record_fg = new BillRecordFragment(this);
         detail_fg = new BillDetailFragment(this);
+        evaluate_fg = new EvaluateFragment(this);
+        assets_fg = new AssetFragment(this);
 
         tab.addItem(R.drawable.bill_record, "随手记", record_fg, RECORD_ITEM_ID);
         tab.addItem(R.drawable.bill_detail, "账单明细", detail_fg, DETAIL_ITEM_ID);
-        tab.addItem(R.drawable.bill_evaluation, "月度评估", new ContentFragment("月度评估"), EVALUATE_ITEM_ID);
-        tab.addItem(R.drawable.bill_storage, "资产总览", new ContentFragment("资产总览"), PROPERTY_ITEM_ID);
+        tab.addItem(R.drawable.bill_evaluation, "月度评估", evaluate_fg, EVALUATE_ITEM_ID);
+        tab.addItem(R.drawable.bill_storage, "资产总览", assets_fg, PROPERTY_ITEM_ID);
         tab.set_selected_item_id(DETAIL_ITEM_ID);
         Log.i("Main", "onCreate, before tab selected");
         tab.notifyItemsChanged();
@@ -77,6 +81,13 @@ public class MainActivity extends Activity {
         	detail_fg.select_day(day_position);
         }  
         // other requestCode
+        if (requestCode == BillRecordFragment.NEW_ASSETS_REQUEST && resultCode == RESULT_OK) {
+        	int year_position = intent.getIntExtra(NewBillActivity.EXTRA_UPDATE_YEAR, 1);
+        	int month_position = intent.getIntExtra(NewBillActivity.EXTRA_UPDATE_MONTH, 1);
+        	tab.select_new_item(PROPERTY_ITEM_ID);
+        	assets_fg.select_year(year_position);
+        	assets_fg.select_month(month_position);
+        }
     }  
 
 

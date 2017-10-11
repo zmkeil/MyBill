@@ -9,6 +9,7 @@
     <string name="newBill">新建单子</string>
     <string name="bill_record_pay">花钱啦</string>
     <string name="bill_record_earn">赚钱啦</string>
+    <string name="assets_record">资产啊</string>
     <string name="year">年</string>
     <string name="month">月</string>
     <string name="day">日</string>
@@ -27,6 +28,8 @@
     <string name="disableBillSure">删除</string>
     
     <string name="title_activity_history_bill">消费明细</string>
+    <string name="title_activity_new_assets">资产变更</string>   
+    <string name="title_activity_update_assets">资产项变动</string>
     
     <string name="search">搜索</string>
     <string name="login">登陆</string>

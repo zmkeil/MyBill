@@ -39,6 +39,18 @@
         </activity>
         
         <activity
+            android:name=".NewAssetsActivity"
+            android:label="@string/title_activity_new_assets"
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        
+        <activity
+            android:name=".UpdateAssetsActivity"
+            android:label="@string/title_activity_update_assets"
+            android:parentActivityName=".MainActivity" >
+        </activity>        
+        
+        <activity
             android:name=".UpdateBillActivity"
             android:label="@string/title_activity_update_bill"           
             android:parentActivityName=".MainActivity" >
