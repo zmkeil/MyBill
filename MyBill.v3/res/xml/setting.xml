@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="服务器信息" >
+	    <CheckBoxPreference  
+	        android:defaultValue="false"  
+	        android:key="use_network"  
+	        android:summary="是否使用network分享"  
+	        android:title="分享" />  	    	    
+	    
+	    <EditTextPreference  
+	        android:defaultValue="127.0.0.1:8888"   
+ 	        android:key="remote_address"  
+ 	        android:summary="ip:port"        
+	        android:title="服务器地址" />
+	</PreferenceCategory> 
+	    
+	<PreferenceCategory android:title="账号信息" >    	  
+	    <EditTextPreference 
+	        android:defaultValue="zmkeil:赵"    
+	        android:key="user_name"  
+	        android:summary="user_name"  
+	        android:title="用户名" />	    
+	        
+	    <EditTextPreference    
+	        android:key="sharer_name1"  
+	        android:summary="sharer"  
+	        android:title="账单分享人" />	  
+	        
+	    <EditTextPreference    
+	        android:key="sharer_name2"  
+	        android:summary="sharer"  
+	        android:title="账单分享人" />	 
+	        
+	    <EditTextPreference    
+	        android:key="sharer_name3"  
+	        android:summary="sharer"  
+	        android:title="账单分享人" />	 
+	        
+	</PreferenceCategory> 
+    
+</PreferenceScreen>

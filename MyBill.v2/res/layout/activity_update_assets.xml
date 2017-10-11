@@ -1,0 +1,185 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.mybill.MainActivity" >    
+    
+    <TextView
+        android:id="@+id/id_assets_record_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:textColor="#FF83aeae"
+        android:textSize="25sp"
+        android:text="资产项变更" />
+
+    <com.example.mybill.widget.DateSpinnerView 
+        android:id="@+id/id_assets_record_dateview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/id_assets_record_title"
+        android:layout_below="@id/id_assets_record_title"
+        android:layout_marginTop="5dp" >        
+    </com.example.mybill.widget.DateSpinnerView>
+    
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_alignLeft="@id/id_assets_record_dateview"
+        android:layout_below="@id/id_assets_record_dateview"
+        android:orientation="horizontal" >
+    
+	    <TextView
+	        android:layout_width="80sp"
+	        android:layout_height="wrap_content"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:text="资产项" />
+	    
+	    <!--Spinner     
+	        android:id = "@+id/assetsItem"     
+	        android:layout_width = "wrap_content"     
+	        android:layout_height ="wrap_content"
+	        android:layout_marginRight="20dp"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:labelFor="@id/assetsItem" /-->
+	    <TextView     
+	        android:id = "@+id/assetsItem"     
+	        android:layout_width = "wrap_content"     
+	        android:layout_height ="wrap_content"
+	        android:layout_marginRight="20dp"
+	        android:textColor="#FF383838"
+	        android:textSize="18sp"
+	        android:labelFor="@id/assetsItem" />
+    
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_alignLeft="@id/linearLayout3"
+        android:layout_below="@id/linearLayout3"
+        android:orientation="horizontal" >
+    
+	    <TextView
+	        android:layout_width="80sp"
+	        android:layout_height="wrap_content"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:text="类型" />
+	    
+	    <!--Spinner
+	        android:id="@+id/assetsFlowType"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginRight="20dp"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:labelFor="@id/assetsFlowType" /-->	    
+	    <TextView
+	        android:id="@+id/assetsFlowType"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginRight="20dp"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:labelFor="@id/assetsFlowType" />
+    
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_alignLeft="@id/linearLayout4"
+        android:layout_below="@id/linearLayout4"
+        android:orientation="horizontal" >
+    
+	    <TextView
+	        android:layout_width="80sp"
+	        android:layout_height="wrap_content"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:text="金额" />
+	    
+	    <EditText
+	        android:id="@+id/assetsCost"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginRight="20dp"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:inputType="number"
+	        android:labelFor="@id/assetsCost" />
+    
+    </LinearLayout>    
+    
+    <LinearLayout
+        android:id="@+id/linearLayout6"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_alignLeft="@id/linearLayout5"
+        android:layout_below="@id/linearLayout5"
+        android:orientation="horizontal" >
+    
+	    <TextView
+	        android:layout_width="80sp"
+	        android:layout_height="wrap_content"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:text="转移项" />
+	    
+	    <!--Spinner
+	        android:id="@+id/assetsDestItem"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginRight="20dp"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:labelFor="@id/assetsDestItem" /-->
+	    <TextView
+	        android:id="@+id/assetsDestItem"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginRight="20dp"
+	        android:textColor="#FF838383"
+	        android:textSize="18sp"
+	        android:labelFor="@id/assetsDestItem" />
+    
+    </LinearLayout>
+    
+    
+        
+    <Button
+	        android:id="@+id/buttonNewBillCreate"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="20dp"
+        	android:layout_alignLeft="@id/linearLayout6"
+        	android:layout_below="@id/linearLayout6"
+	        android:text="@string/updateBillSure"
+	        android:onClick="updateAssetsSure" />
+    
+    <Button
+	        android:id="@+id/buttonDisableBillCreate"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="20dp"
+        	android:layout_below="@id/linearLayout6"
+        	android:layout_toRightOf="@id/buttonNewBillCreate"
+        	android:layout_marginLeft="40dp"
+	        android:text="@string/disableBillSure"
+	        android:onClick="disableAssetsSure" />
+
+</RelativeLayout>

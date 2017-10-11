@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item
+        android:id="@+id/menu_search"
+        android:icon="@drawable/search"
+        android:orderInCategory="1"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/search"/>
+    
+    <item
+        android:id="@+id/menu_login"
+        android:icon="@drawable/ic_launcher"
+        android:orderInCategory="1"
+        android:showAsAction="withText"
+        android:title="@string/login"/>
+    
+    <item
+        android:id="@+id/menu_drop"
+        android:icon="@drawable/ic_launcher"
+        android:orderInCategory="2"
+        android:showAsAction="withText"
+        android:title="@string/drop"/>
+ 
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_launcher"
+        android:orderInCategory="100"
+        android:showAsAction="withText"
+        android:title="@string/settings"/>
+
+</menu>
